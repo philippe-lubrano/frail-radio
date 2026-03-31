@@ -2,11 +2,17 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import './App.css'
 
 const playlist = [
-  { title: 'Midnight Drive', file: '/musique/midnight-drive.wav' },
-  { title: 'Neon Lights', file: '/musique/neon-lights.wav' },
-  { title: 'Ocean Breeze', file: '/musique/ocean-breeze.wav' },
-  { title: 'Sunset Vibes', file: '/musique/sunset-vibes.wav' },
-  { title: 'Urban Dreams', file: '/musique/urban-dreams.wav' },
+  { title: '3 AM Static', file: '/music/3 AM Static.wav' },
+  { title: 'Alone', file: '/music/Alone.wav' },
+  { title: 'Broken', file: '/music/Broken.wav' },
+  { title: 'Chemical Silence', file: '/music/Chemical Silence.wav' },
+  { title: 'Concrete Forest', file: '/music/Concrete Forest.wav' },
+  { title: 'Finally Still', file: '/music/Finally Still.wav' },
+  { title: 'Lost in the Cure', file: '/music/Lost in the cure.wav' },
+  { title: 'Social Battery Low', file: '/music/Social battery low.wav' },
+  { title: 'The Glass Wall', file: '/music/The Glass Wall.wav' },
+  { title: 'The Unlived Life', file: '/music/The Unlived Life.wav' },
+  { title: 'Velvet Cage', file: '/music/Velvet cage.wav' },
 ]
 
 function shuffleArray(arr) {
@@ -127,7 +133,7 @@ function App() {
     <div className="app">
       <video
         className="video-bg"
-        src="https://cdn.pixabay.com/video/2020/02/07/32070-390426400_large.mp4"
+        src="/video/332544.mp4"
         autoPlay
         muted
         loop
