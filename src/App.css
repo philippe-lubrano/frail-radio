@@ -331,7 +331,7 @@
     bottom: 12px;
     left: 12px;
     width: calc(100vw - 24px);
-    height: calc(100vh - 24px);
+    height: calc(100dvh - 24px);
     padding: 18px;
     border-radius: 14px;
   }
