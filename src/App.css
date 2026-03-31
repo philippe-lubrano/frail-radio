@@ -330,10 +330,13 @@
   .player-panel {
     bottom: 12px;
     left: 12px;
+    top: 12px;
     width: calc(100vw - 24px);
-    height: calc(100dvh - 24px);
+    height: auto;
+    max-height: calc(100dvh - 24px);
     padding: 18px;
     border-radius: 14px;
+    overflow-y: auto;
   }
 
   .track-title {
