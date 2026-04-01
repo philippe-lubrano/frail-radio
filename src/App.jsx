@@ -1,19 +1,20 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import './App.css'
 
-const playlist = [
-  { title: '3 AM Static', file: '/music/3 AM Static.wav' },
-  { title: 'Alone', file: '/music/Alone.wav' },
-  { title: 'Broken', file: '/music/Broken.wav' },
-  { title: 'Chemical Silence', file: '/music/Chemical Silence.wav' },
-  { title: 'Concrete Forest', file: '/music/Concrete Forest.wav' },
-  { title: 'Finally Still', file: '/music/Finally Still.wav' },
-  { title: 'Lost in the Cure', file: '/music/Lost in the cure.wav' },
-  { title: 'Social Battery Low', file: '/music/Social battery low.wav' },
-  { title: 'The Glass Wall', file: '/music/The Glass Wall.wav' },
-  { title: 'The Unlived Life', file: '/music/The Unlived Life.wav' },
-  { title: 'Velvet Cage', file: '/music/Velvet cage.wav' },
-]
+const playlist = Object.keys(
+  import.meta.glob('/public/music/*.{mp3,wav,ogg,m4a,flac,aac}')
+)
+  .sort((a, b) =>
+    a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+  )
+  .map((filePath) => {
+    const fileName = filePath.split('/').pop() ?? ''
+
+    return {
+      title: decodeURIComponent(fileName).replace(/\.[^.]+$/, ''),
+      file: filePath.replace('/public', ''),
+    }
+  })
 
 function shuffleArray(arr) {
   const shuffled = [...arr]
@@ -56,8 +57,11 @@ function App() {
   const prevVolRef = useRef(0.8)
 
   const currentTrack = shuffledPlaylist[currentIndex]
+  const hasTracks = shuffledPlaylist.length > 0
 
   const playNext = useCallback(() => {
+    if (!shuffledPlaylist.length) return
+
     setCurrentIndex((prev) => {
       if (prev >= shuffledPlaylist.length - 1) {
         const newShuffled = shuffleArray(playlist)
@@ -69,6 +73,8 @@ function App() {
   }, [shuffledPlaylist.length])
 
   const playPrev = useCallback(() => {
+    if (!shuffledPlaylist.length) return
+
     setCurrentIndex((prev) => {
       if (prev <= 0) return shuffledPlaylist.length - 1
       return prev - 1
@@ -77,7 +83,7 @@ function App() {
 
   useEffect(() => {
     const audio = audioRef.current
-    if (!audio) return
+    if (!audio || !currentTrack) return
 
     audio.src = currentTrack.file
     audio.load()
@@ -107,7 +113,7 @@ function App() {
 
   // Media Session API – next/previous from headset/lock screen
   useEffect(() => {
-    if (!('mediaSession' in navigator)) return
+    if (!currentTrack || !('mediaSession' in navigator)) return
 
     navigator.mediaSession.metadata = new MediaMetadata({
       title: currentTrack.title,
@@ -320,7 +326,7 @@ function App() {
 
   const togglePlay = () => {
     const audio = audioRef.current
-    if (!audio) return
+    if (!audio || !currentTrack) return
 
     // Init AudioContext on first user gesture
     initAudioContext()
@@ -489,7 +495,7 @@ function App() {
             Frail Radio
           </span>
           <span className="badge track-badge">
-            {currentIndex + 1} / {shuffledPlaylist.length}
+            {hasTracks ? currentIndex + 1 : 0} / {shuffledPlaylist.length}
           </span>
           <span
             className="badge volume-badge"
@@ -509,7 +515,7 @@ function App() {
           </span>
         </div>
 
-        <h1 className="track-title">{currentTrack.title}</h1>
+        <h1 className="track-title">{currentTrack?.title ?? 'Aucun titre disponible'}</h1>
         <p className="track-subtitle">
           Lecture aléatoire en boucle — Détendez-vous et profitez de la musique.
         </p>
@@ -553,6 +559,7 @@ function App() {
             <button
               className="control-btn"
               onClick={playPrev}
+              disabled={!hasTracks}
               aria-label="Précédent"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -562,6 +569,7 @@ function App() {
             <button
               className="control-btn play-btn"
               onClick={togglePlay}
+              disabled={!hasTracks}
               aria-label={isPlaying ? 'Pause' : 'Lecture'}
             >
               {isPlaying ? (
@@ -578,6 +586,7 @@ function App() {
             <button
               className="control-btn"
               onClick={playNext}
+              disabled={!hasTracks}
               aria-label="Suivant"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
