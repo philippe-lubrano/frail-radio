@@ -105,6 +105,24 @@ function App() {
     }
   }, [playNext])
 
+  // Media Session API – next/previous from headset/lock screen
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: currentTrack.title,
+      artist: 'Frail Radio',
+    })
+
+    navigator.mediaSession.setActionHandler('previoustrack', playPrev)
+    navigator.mediaSession.setActionHandler('nexttrack', playNext)
+
+    return () => {
+      navigator.mediaSession.setActionHandler('previoustrack', null)
+      navigator.mediaSession.setActionHandler('nexttrack', null)
+    }
+  }, [currentTrack, playNext, playPrev])
+
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume
@@ -182,7 +200,7 @@ function App() {
       const cy = H / 2
       const baseRadius = Math.min(W, H) * 0.22
       const maxBar = Math.min(W, H) * 0.25
-      const deformAmount = baseRadius * 0.35
+      const deformAmount = baseRadius * 0.7
 
       ctx.clearRect(0, 0, W, H)
       analyser.getByteFrequencyData(dataArray)
@@ -202,22 +220,24 @@ function App() {
       // Smooth the frequency data for organic blob deformation
       for (let i = 0; i < bars; i++) {
         const target = remapped[i]
-        smoothRadii[i] += (target - smoothRadii[i]) * 0.18
+        smoothRadii[i] += (target - smoothRadii[i]) * 0.32
       }
 
-      // Build deformed radius per bar (averaged with neighbors for smoothness)
+      // Build deformed radius per bar
       // Deforms INWARD: higher energy = smaller radius
       const deformedRadii = new Float32Array(bars)
       for (let i = 0; i < bars; i++) {
         let sum = 0
-        const spread = 6
+        const spread = 3
         for (let j = -spread; j <= spread; j++) {
           sum += smoothRadii[(i + j + bars) % bars]
         }
         const avgVal = sum / (spread * 2 + 1)
-        // Ambient slow wobble so nothing is ever perfectly still
-        const wobble = Math.sin(time * 2.3 + i * 0.15) * 0.02 +
-                       Math.sin(time * 1.1 + i * 0.08) * 0.015
+        // Multi-frequency wobble for chaotic movement
+        const wobble = Math.sin(time * 4.5 + i * 0.25) * 0.05 +
+                       Math.sin(time * 2.3 + i * 0.15) * 0.04 +
+                       Math.cos(time * 6.1 + i * 0.4) * 0.03 +
+                       Math.sin(time * 1.1 + i * 0.08) * 0.02
         deformedRadii[i] = baseRadius - avgVal * deformAmount + wobble * baseRadius
       }
 
