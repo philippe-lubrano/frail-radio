@@ -1,20 +1,37 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import './App.css'
 
-const playlist = Object.keys(
-  import.meta.glob('/public/music/*.{mp3,wav,ogg,m4a,flac,aac}')
-)
-  .sort((a, b) =>
-    a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-  )
-  .map((filePath) => {
-    const fileName = filePath.split('/').pop() ?? ''
+const GENRES = [
+  { key: 'all', label: 'Tous les styles' },
+  { key: 'liquid', label: 'Liquid' },
+  { key: 'jumpUp', label: 'Jump Up' },
+]
 
-    return {
-      title: decodeURIComponent(fileName).replace(/\.[^.]+$/, ''),
-      file: filePath.replace('/public', ''),
-    }
-  })
+function loadFolder(globEntries, genre) {
+  return Object.keys(globEntries)
+    .sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+    )
+    .map((filePath) => {
+      const fileName = filePath.split('/').pop() ?? ''
+      return {
+        title: decodeURIComponent(fileName).replace(/\.[^.]+$/, ''),
+        file: filePath.replace('/public', ''),
+        genre,
+      }
+    })
+}
+
+const playlist = [
+  ...loadFolder(
+    import.meta.glob('/public/jumpUp/*.{mp3,wav,ogg,m4a,flac,aac}'),
+    'jumpUp'
+  ),
+  ...loadFolder(
+    import.meta.glob('/public/liquid/*.{mp3,wav,ogg,m4a,flac,aac}'),
+    'liquid'
+  ),
+]
 
 function shuffleArray(arr) {
   const shuffled = [...arr]
@@ -37,6 +54,7 @@ function computePerimeter(W, H, r) {
 }
 
 function App() {
+  const [genre, setGenre] = useState('all')
   const [shuffledPlaylist, setShuffledPlaylist] = useState(() =>
     shuffleArray(playlist)
   )
@@ -56,6 +74,17 @@ function App() {
   const [panelSize, setPanelSize] = useState({ w: 420, h: 500, r: 18 })
   const prevVolRef = useRef(0.8)
 
+  const filteredPlaylist = genre === 'all'
+    ? playlist
+    : playlist.filter((t) => t.genre === genre)
+
+  // Re-shuffle when genre changes
+  useEffect(() => {
+    const newShuffled = shuffleArray(filteredPlaylist)
+    setShuffledPlaylist(newShuffled)
+    setCurrentIndex(0)
+  }, [genre])
+
   const currentTrack = shuffledPlaylist[currentIndex]
   const hasTracks = shuffledPlaylist.length > 0
 
@@ -64,13 +93,13 @@ function App() {
 
     setCurrentIndex((prev) => {
       if (prev >= shuffledPlaylist.length - 1) {
-        const newShuffled = shuffleArray(playlist)
+        const newShuffled = shuffleArray(filteredPlaylist)
         setShuffledPlaylist(newShuffled)
         return 0
       }
       return prev + 1
     })
-  }, [shuffledPlaylist.length])
+  }, [shuffledPlaylist.length, filteredPlaylist])
 
   const playPrev = useCallback(() => {
     if (!shuffledPlaylist.length) return
@@ -521,7 +550,20 @@ function App() {
         </p>
 
         <div className="playlist-box">
-          <span className="playlist-label">Playlist</span>
+          <div className="playlist-header">
+            <span className="playlist-label">Playlist</span>
+            <div className="genre-selector">
+              {GENRES.map((g) => (
+                <button
+                  key={g.key}
+                  className={`genre-btn ${genre === g.key ? 'active' : ''}`}
+                  onClick={() => setGenre(g.key)}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="playlist-tracks">
             {shuffledPlaylist.map((track, i) => (
               <button
