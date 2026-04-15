@@ -2,8 +2,10 @@ import Alexa from 'ask-sdk-core'
 
 /**
  * Playlist exposed to the Alexa Skill via AudioPlayer.
- * Replace the URLs below with the public URLs of your MP3 files (≤ 50 MB each).
- * Alexa AudioPlayer only supports MP3 (up to 256 kbps) and certain HLS streams.
+ *
+ * IMPORTANT: Alexa AudioPlayer only supports MP3 (up to 256 kbps) and certain
+ * HLS streams. WAV files are NOT supported. Before deploying, convert your audio
+ * files to MP3 (≤ 50 MB each) and update the URLs below accordingly.
  *
  * In production, set the SITE_URL environment variable to your Vercel domain
  * (e.g. https://frail-radio.vercel.app) so that URLs resolve correctly.
