@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useRef, useEffect, useCallback } from 'react'
 import './App.css'
 
@@ -7,30 +9,34 @@ const GENRES = [
   { key: 'jumpUp', label: 'Jump Up' },
 ]
 
-function loadFolder(globEntries, genre) {
-  return Object.keys(globEntries)
-    .sort((a, b) =>
-      a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-    )
-    .map((filePath) => {
-      const fileName = filePath.split('/').pop() ?? ''
-      return {
-        title: decodeURIComponent(fileName).replace(/\.[^.]+$/, ''),
-        file: filePath.replace('/public', ''),
-        genre,
-      }
-    })
-}
-
+/**
+ * Static playlist built from the files in /public.
+ * In Next.js we cannot use import.meta.glob, so the tracks are listed explicitly.
+ */
 const playlist = [
-  ...loadFolder(
-    import.meta.glob('/public/jumpUp/*.{mp3,wav,ogg,m4a,flac,aac}'),
-    'jumpUp'
-  ),
-  ...loadFolder(
-    import.meta.glob('/public/liquid/*.{mp3,wav,ogg,m4a,flac,aac}'),
-    'liquid'
-  ),
+  // ── Jump Up ─────────────────────
+  { title: 'Ignition', file: '/jumpUp/Ignition.wav', genre: 'jumpUp' },
+  { title: 'Mapping the Void', file: '/jumpUp/Mapping the Void.wav', genre: 'jumpUp' },
+  { title: 'Overdrive', file: '/jumpUp/Overdrive.wav', genre: 'jumpUp' },
+  { title: 'The Breakdown', file: '/jumpUp/The Breakdown.wav', genre: 'jumpUp' },
+  { title: 'The Signal', file: '/jumpUp/The Signal.wav', genre: 'jumpUp' },
+  { title: 'The fault line', file: '/jumpUp/The fault line.wav', genre: 'jumpUp' },
+  // ── Liquid ──────────────────────
+  { title: '3 AM Static', file: '/liquid/3 AM Static.wav', genre: 'liquid' },
+  { title: 'Alone', file: '/liquid/Alone.wav', genre: 'liquid' },
+  { title: 'An old friend', file: '/liquid/An old friend.wav', genre: 'liquid' },
+  { title: 'Broken', file: '/liquid/Broken.wav', genre: 'liquid' },
+  { title: 'Chemical Silence', file: '/liquid/Chemical Silence.wav', genre: 'liquid' },
+  { title: 'Concrete Forest', file: '/liquid/Concrete Forest.wav', genre: 'liquid' },
+  { title: 'Finally Still', file: '/liquid/Finally Still.wav', genre: 'liquid' },
+  { title: 'Leaving the Silent Prayer', file: '/liquid/Leaving the Silent Prayer.wav', genre: 'liquid' },
+  { title: 'Lost in the cure', file: '/liquid/Lost in the cure.wav', genre: 'liquid' },
+  { title: 'Social battery low', file: '/liquid/Social battery low.wav', genre: 'liquid' },
+  { title: 'The Glass Wall', file: '/liquid/The Glass Wall.wav', genre: 'liquid' },
+  { title: 'The Loop', file: '/liquid/The Loop.wav', genre: 'liquid' },
+  { title: 'The Unlived Life', file: '/liquid/The Unlived Life.wav', genre: 'liquid' },
+  { title: 'The silent room', file: '/liquid/The silent room.wav', genre: 'liquid' },
+  { title: 'Velvet cage', file: '/liquid/Velvet cage.wav', genre: 'liquid' },
 ]
 
 function shuffleArray(arr) {
@@ -244,7 +250,6 @@ function App() {
       const angleStep = (Math.PI * 2) / bars
 
       // Remap frequency bins so they're spread evenly around the circle
-      // (avoids dead zones from silent high-freq bins)
       const remapped = new Float32Array(bars)
       const usableBins = Math.floor(bufferLength * 0.75)
       for (let i = 0; i < bars; i++) {
@@ -259,7 +264,6 @@ function App() {
       }
 
       // Build deformed radius per bar
-      // Deforms INWARD: higher energy = smaller radius
       const deformedRadii = new Float32Array(bars)
       for (let i = 0; i < bars; i++) {
         let sum = 0
@@ -268,7 +272,6 @@ function App() {
           sum += smoothRadii[(i + j + bars) % bars]
         }
         const avgVal = sum / (spread * 2 + 1)
-        // Multi-frequency wobble for chaotic movement
         const wobble = Math.sin(time * 4.5 + i * 0.25) * 0.05 +
                        Math.sin(time * 2.3 + i * 0.15) * 0.04 +
                        Math.cos(time * 6.1 + i * 0.4) * 0.03 +
@@ -308,7 +311,6 @@ function App() {
         const x2 = cx + Math.cos(angle) * (r + barHeight)
         const y2 = cy + Math.sin(angle) * (r + barHeight)
 
-        // Original green → blue gradient, boosted visibility
         const t = i / bars
         const cr = Math.round(110 + t * (59 - 110))
         const cg = Math.round(231 + t * (130 - 231))
@@ -357,7 +359,6 @@ function App() {
     const audio = audioRef.current
     if (!audio || !currentTrack) return
 
-    // Init AudioContext on first user gesture
     initAudioContext()
     if (audioCtxRef.current?.state === 'suspended') {
       audioCtxRef.current.resume()
@@ -393,7 +394,6 @@ function App() {
     const cx = rect.width / 2
     const cy = rect.height / 2
     const angle = Math.atan2(py - cy, px - cx)
-    // Map: bottom-center = 0, going clockwise → 1
     let norm = Math.PI / 2 - angle
     if (norm < 0) norm += 2 * Math.PI
     return norm / (2 * Math.PI)
@@ -407,7 +407,6 @@ function App() {
     const cy = e.touches ? e.touches[0].clientY : e.clientY
     const px = cx - rect.left
     const py = cy - rect.top
-    // Only activate when clicking near the panel edge
     const edgeDist = Math.min(px, py, rect.width - px, rect.height - py)
     if (edgeDist > 18) return
 
@@ -427,7 +426,6 @@ function App() {
       const rawVol = getVolumeFromPos(mx, my)
       if (rawVol !== null) {
         const diff = rawVol - prevVolRef.current
-        // Prevent jumps when crossing the 0/1 boundary
         const newVol = Math.abs(diff) > 0.4
           ? (diff > 0 ? 0 : 1)
           : rawVol
