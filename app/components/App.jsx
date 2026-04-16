@@ -9,36 +9,6 @@ const GENRES = [
   { key: 'jumpUp', label: 'Jump Up' },
 ]
 
-/**
- * Static playlist built from the files in /public.
- * In Next.js we cannot use import.meta.glob, so the tracks are listed explicitly.
- */
-const playlist = [
-  // ── Jump Up ─────────────────────
-  { title: 'Ignition', file: '/jumpUp/Ignition.mp3', genre: 'jumpUp' },
-  { title: 'Mapping the Void', file: '/jumpUp/Mapping the Void.mp3', genre: 'jumpUp' },
-  { title: 'Overdrive', file: '/jumpUp/Overdrive.mp3', genre: 'jumpUp' },
-  { title: 'The Breakdown', file: '/jumpUp/The Breakdown.mp3', genre: 'jumpUp' },
-  { title: 'The Signal', file: '/jumpUp/The Signal.mp3', genre: 'jumpUp' },
-  { title: 'The fault line', file: '/jumpUp/The fault line.mp3', genre: 'jumpUp' },
-  // ── Liquid ──────────────────────
-  { title: '3 AM Static', file: '/liquid/3 AM Static.mp3', genre: 'liquid' },
-  { title: 'Alone', file: '/liquid/Alone.mp3', genre: 'liquid' },
-  { title: 'An old friend', file: '/liquid/An old friend.mp3', genre: 'liquid' },
-  { title: 'Broken', file: '/liquid/Broken.mp3', genre: 'liquid' },
-  { title: 'Chemical Silence', file: '/liquid/Chemical Silence.mp3', genre: 'liquid' },
-  { title: 'Concrete Forest', file: '/liquid/Concrete-Forest.mp3', genre: 'liquid' },
-  { title: 'Finally Still', file: '/liquid/Finally-Still.mp3', genre: 'liquid' },
-  { title: 'Leaving the Silent Prayer', file: '/liquid/Leaving-the-Silent-Prayer.mp3', genre: 'liquid' },
-  { title: 'Lost in the cure', file: '/liquid/Lost-in-the-cure.mp3', genre: 'liquid' },
-  { title: 'Social battery low', file: '/liquid/Social-battery-low.mp3', genre: 'liquid' },
-  { title: 'The Glass Wall', file: '/liquid/The-Glass-Wall.mp3', genre: 'liquid' },
-  { title: 'The Loop', file: '/liquid/The-Loop.mp3', genre: 'liquid' },
-  { title: 'The Unlived Life', file: '/liquid/The-Unlived-Life.mp3', genre: 'liquid' },
-  { title: 'The silent room', file: '/liquid/The-silent-room.mp3', genre: 'liquid' },
-  { title: 'Velvet cage', file: '/liquid/Velvet-cage.mp3', genre: 'liquid' },
-]
-
 function shuffleArray(arr) {
   const shuffled = [...arr]
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -59,7 +29,7 @@ function computePerimeter(W, H, r) {
   return 2 * (W - 2 * r) + 2 * (H - 2 * r) + 2 * Math.PI * r
 }
 
-function App() {
+function App({ playlist }) {
   const [genre, setGenre] = useState('all')
   const [shuffledPlaylist, setShuffledPlaylist] = useState(() =>
     shuffleArray(playlist)

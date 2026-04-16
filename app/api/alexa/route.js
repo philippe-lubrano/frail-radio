@@ -1,36 +1,9 @@
 import { NextResponse } from 'next/server';
 import * as Alexa from 'ask-sdk-core';
+import { getTracksWithUrls } from '../../lib/tracks';
 
-/**
- * Playlist exposed to the Alexa Skill via AudioPlayer.
- */
 const SITE_URL = process.env.SITE_URL || 'https://frail-radio.vercel.app';
-
-const TRACKS = [
-  // ── Jump Up ─────────────────────
-  { title: 'Ignition', url: `${SITE_URL}/jumpUp/Ignition.mp3` },
-  { title: 'Mapping the Void', url: `${SITE_URL}/jumpUp/Mapping%20the%20Void.mp3` },
-  { title: 'Overdrive', url: `${SITE_URL}/jumpUp/Overdrive.mp3` },
-  { title: 'The Breakdown', url: `${SITE_URL}/jumpUp/The%20Breakdown.mp3` },
-  { title: 'The Signal', url: `${SITE_URL}/jumpUp/The%20Signal.mp3` },
-  { title: 'The fault line', url: `${SITE_URL}/jumpUp/The%20fault%20line.mp3` },
-  // ── Liquid ──────────────────────
-  { title: '3 AM Static', url: `${SITE_URL}/liquid/3%20AM%20Static.mp3` },
-  { title: 'Alone', url: `${SITE_URL}/liquid/Alone.mp3` },
-  { title: 'An old friend', url: `${SITE_URL}/liquid/An%20old%20friend.mp3` },
-  { title: 'Broken', url: `${SITE_URL}/liquid/Broken.mp3` },
-  { title: 'Chemical Silence', url: `${SITE_URL}/liquid/Chemical%20Silence.mp3` },
-  { title: 'Concrete Forest', url: `${SITE_URL}/liquid/Concrete-Forest.mp3` },
-  { title: 'Finally Still', url: `${SITE_URL}/liquid/Finally-Still.mp3` },
-  { title: 'Leaving the Silent Prayer', url: `${SITE_URL}/liquid/Leaving-the-Silent-Prayer.mp3` },
-  { title: 'Lost in the cure', url: `${SITE_URL}/liquid/Lost-in-the-cure.mp3` },
-  { title: 'Social battery low', url: `${SITE_URL}/liquid/Social-battery-low.mp3` },
-  { title: 'The Glass Wall', url: `${SITE_URL}/liquid/The-Glass-Wall.mp3` },
-  { title: 'The Loop', url: `${SITE_URL}/liquid/The-Loop.mp3` },
-  { title: 'The Unlived Life', url: `${SITE_URL}/liquid/The-Unlived-Life.mp3` },
-  { title: 'The silent room', url: `${SITE_URL}/liquid/The-silent-room.mp3` },
-  { title: 'Velvet cage', url: `${SITE_URL}/liquid/Velvet-cage.mp3` },
-];
+const TRACKS = getTracksWithUrls(SITE_URL);
 
 function getRandomTrack() {
   return TRACKS[Math.floor(Math.random() * TRACKS.length)];
