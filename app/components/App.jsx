@@ -7,6 +7,7 @@ const GENRES = [
   { key: 'all', label: 'Tous les styles' },
   { key: 'liquid', label: 'Liquid' },
   { key: 'jumpUp', label: 'Jump Up' },
+  { key: 'instrumental', label: 'Instrumental' },
 ]
 
 function shuffleArray(arr) {
